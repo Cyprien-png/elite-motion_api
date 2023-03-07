@@ -4,14 +4,25 @@ const db = require("../db")
 const router = express.Router()
 
 router.get("/", async (req, res, next) => {
-    
     try {
         let results = await db.all()
         res.json(results)
-    } catch(e){
+    } catch (e) {
         console.log(e)
         res.sendStatus(500)
     }
 })
+
+//get user by mail
+router.get("/users/getuser", async (req, res, next) => {
+    try {
+        let results = await db.getUser(req.body.mail)
+        res.json(results)
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(500)
+    }
+})
+
 
 module.exports = router

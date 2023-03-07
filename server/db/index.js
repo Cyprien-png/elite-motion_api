@@ -24,4 +24,17 @@ chriprdb.all = () => {
     })
 }
 
+//get user by mail
+chriprdb.getUser = (mail) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`SELECT * FROM users WHERE mail LIKE '${mail}'`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+
 module.exports = chriprdb
