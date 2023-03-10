@@ -1,6 +1,9 @@
-require('dotenv').config()
+import { config } from "dotenv";
+import mysql from "mysql"
 
-const mysql = require('mysql')
+config()
+
+
 
 const pool = mysql.createPool({
     connectionLimit: 10,
@@ -37,4 +40,4 @@ chriprdb.getUser = (mail) => {
 }
 
 
-module.exports = chriprdb
+export default chriprdb
