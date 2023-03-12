@@ -1,9 +1,9 @@
-import { config } from "dotenv";
+import dotenv from "dotenv";
 import express from "express";
 import db from "../db/index.js"
 import jwt from "jsonwebtoken"
 
-config()
+dotenv.config()
 
 const router = express.Router()
 
@@ -18,6 +18,12 @@ const posts = [
         title: "post 2"
     }
 ]
+
+function createToken(user){
+    const token = jwt.sign(user, process.env.USER_SESSION_TOKEN_SECRET) 
+
+    console.log(token)
+}
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers["authorization"]
@@ -79,9 +85,37 @@ router.get("/auth", async (req, res) => {
 })
 
 
+app.delete("/logout", (req, res) => {
+    refreshTokens = refreshTokens.filter(token => token !== req.body.token)
+    res.sendStatus(204)
+})
+
+app.post("/login", (req, res) => {
+    //auth by psw
+
+    const username = req.body.username
+    const user = req.body 
+
+    const refreshToken = jwt.sign(user, process.env.USER_SESSION_TOKEN_SECRET) 
+    res.json({ refreshToken: refreshToken })
+})
+
+app.post("/auth", async(req, res) => {
+    //auth by psw
+    //console.log(req.body)
+    const user = req.body
+    const results = await checkCredentials(user)
+
+        console.log(results)
+     //check if password is wrong
+//     if(results[0].password !== user.password) res.sendStatus(403)
+     res.json(user)
+})
+
+
+
  export const checkCredentials = (user) =>  {
 
-   
     let results
     try {
         results = db.getUser(user.mail)

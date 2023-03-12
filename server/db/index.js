@@ -14,9 +14,9 @@ const pool = mysql.createPool({
     port: process.env.DB_PORT
 })
 
-let chriprdb = {}
+let em_db = {}
 
-chriprdb.all = () => {
+em_db.all = () => {
     return new Promise((resolve, reject) => {
         pool.query("SELECT * FROM users", (err, results) => {
             if (err) {
@@ -28,7 +28,7 @@ chriprdb.all = () => {
 }
 
 //get user by mail
-chriprdb.getUser = (mail) => {
+em_db.getUser = (mail) => {
     return new Promise((resolve, reject) => {
         pool.query(`SELECT * FROM users WHERE mail LIKE '${mail}'`, (err, results) => {
             if (err) {
@@ -39,5 +39,22 @@ chriprdb.getUser = (mail) => {
     })
 }
 
+em_db.createUserSession = () => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `INSERT INTO users_sessions (token, end_date, users_user_id) 
+            VALUES (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtYWlsIjoiYWRtaW5AdGVzdC5jaCIsImlhdCI6MTY3ODYyNzIyOH0.BaPK0WsTgGx1fvzKgXCWhuBOUYgpmYmeOqpAGRT1xEa",
+                "12.04.2033",
+                1
+            );`
+            , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
 
-export default chriprdb
+export default em_db
