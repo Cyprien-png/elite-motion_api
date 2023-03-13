@@ -27,6 +27,7 @@ em_db.all = () => {
     })
 }
 
+
 //get user by mail
 em_db.getUser = (mail) => {
     return new Promise((resolve, reject) => {
@@ -39,16 +40,10 @@ em_db.getUser = (mail) => {
     })
 }
 
-em_db.createUserSession = () => {
+em_db.createUserSession = (token, endDate, userId) => {
     return new Promise((resolve, reject) => {
         pool.query(
-            `INSERT INTO users_sessions (token, end_date, users_user_id) 
-            VALUES (
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtYWlsIjoiYWRtaW5AdGVzdC5jaCIsImlhdCI6MTY3ODYyNzIyOH0.BaPK0WsTgGx1fvzKgXCWhuBOUYgpmYmeOqpAGRT1xEa",
-                "12.04.2033",
-                1
-            );`
-            , (err, results) => {
+            `INSERT INTO users_sessions (token, end_date, users_user_id) VALUES ("${token}","${endDate}",${userId});`, (err, results) => {
                 if (err) {
                     return reject(err)
                 }
@@ -58,3 +53,4 @@ em_db.createUserSession = () => {
 }
 
 export default em_db
+
