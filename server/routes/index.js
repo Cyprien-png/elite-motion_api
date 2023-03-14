@@ -39,28 +39,32 @@ router.post("/login", async (req, res) => {
         res.sendStatus(500)
     }
 
-    
-    if (user.password !== userData.password) {
+    if (!user.password || user.password !== userData.password) {
         //wrong password
         res.sendStatus(401)
     } else {
-        const token = jwt.sign(user.mail+Date.now(), process.env.USER_SESSION_TOKEN_SECRET)
-        const endDate = moment().add(1,"M").format('DD.MM.YYYY')
+        const token = jwt.sign(user.mail + Date.now(), process.env.USER_SESSION_TOKEN_SECRET)
+        const endDate = moment().add(1, "M").format('DD.MM.YYYY')
 
         try {
             //create session
             await db.createUserSession(token, endDate, userData.user_id)
-            
+
+            //send token
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'POST');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+            res
+                .json({ token: token })
+                //.sendStatus(200)
+
         } catch (e) {
             console.log(e)
             res.sendStatus(500)
         }
-        
-        //send token
-        res
-            .json({token: token})
-            .sendStatus(200)
     }
+
 })
 
 
