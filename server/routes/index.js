@@ -39,7 +39,7 @@ router.post("/login", async (req, res) => {
         res.sendStatus(500)
     }
 
-    if (!user.password || user.password !== userData.password) {
+    if (!user.password || !userData.password || user.password !== userData.password) {
         //wrong password
         res.sendStatus(401)
     } else {
