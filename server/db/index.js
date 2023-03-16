@@ -40,6 +40,57 @@ em_db.getUser = (mail) => {
     })
 }
 
+//get current user's sessions
+em_db.getUsersSessions = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`SELECT * FROM users_sessions WHERE users_user_id LIKE '${user_id}'`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+
+//delete outdated user's sessions
+em_db.deleteUsersSession = (users_session_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`DELETE FROM users_sessions WHERE users_session_id = '${users_session_id}'`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+//check if session still exist
+em_db.getSessionByToken = (token) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`SELECT * FROM users_sessions WHERE token LIKE '${token}'`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+//renew end_date of the session
+em_db.postponeSessionEnd = (users_session_id, end_date) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`UPDATE users_sessions SET end_date = '${end_date}' WHERE users_session_id = '${users_session_id}'`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+
+//Generate a new session for a user
 em_db.createUserSession = (token, endDate, userId) => {
     return new Promise((resolve, reject) => {
         pool.query(
