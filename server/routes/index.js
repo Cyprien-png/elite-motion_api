@@ -2,8 +2,6 @@ import dotenv from "dotenv";
 import express from "express";
 import db from "../db/index.js";
 import auth from "./utils/auth.js";
-import jwt from "jsonwebtoken"
-import moment from "moment"
 
 dotenv.config()
 const router = express.Router()
@@ -19,16 +17,7 @@ router.post("/login", async (req, res) => {
         return
     }
 
-    let userData
-
-    try {
-        userData = (await db.getUser(user.mail))[0]
-        //wrong email
-        if (!userData || !userData.mail || !userData.password) res.sendStatus(401)
-    } catch (e) {
-        console.log(e)
-        res.sendStatus(500)
-    }
+    let userData = await auth.getUser(user, res)
 
     if (!user.password || !userData.password || user.password !== userData.password) {
         //wrong password
@@ -39,6 +28,13 @@ router.post("/login", async (req, res) => {
 
         //Create session
         auth.createSession(res, token, userData.user_id)
+
+        //send token
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'POST');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+        res.json({ token: token })
     }
 
 })
@@ -78,15 +74,7 @@ router.post("/signup", async (req, res) => {
     }
 
     //Read the new user fields in db to get its id
-    let userData
-    try {
-        userData = (await db.getUser(user.mail))[0]
-        //wrong email
-        if (!userData || !userData.mail || !userData.password) res.sendStatus(401)
-    } catch (e) {
-        console.log(e)
-        res.sendStatus(500)
-    }
+    let userData = await auth.getUser(user, res)
 
 
     //create token
@@ -95,6 +83,13 @@ router.post("/signup", async (req, res) => {
 
     //Create session
     auth.createSession(res, token, userData.user_id)
+
+    //send token
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    res.json({ token: token })
 
 })
 

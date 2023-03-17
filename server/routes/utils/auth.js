@@ -20,15 +20,6 @@ auth.createSession = async (res, token, user_id) => {
         //create session
         await db.createUserSession(token, moment(moment().format("YYYY-MM-DDTHH:mm:ssZ")).add(1, "M").format("YYYY-MM-DDTHH:mm:ssZ"), user_id)
 
-        //send token
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'POST');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-        res
-            .json({ token: token })
-        //.sendStatus(200)
-
     } catch (e) {
         console.log(e)
         res.sendStatus(500)
@@ -96,5 +87,18 @@ auth.checkSession = (req) => {
         })
     })
 };
+
+auth.getUser = async(user, res) => {
+    let userData
+    try {
+        userData = (await db.getUser(user.mail))[0]
+        //wrong email
+        if (!userData || !userData.mail || !userData.password) res.sendStatus(401)
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(500)
+    }
+    return userData
+}
 
 export default auth
