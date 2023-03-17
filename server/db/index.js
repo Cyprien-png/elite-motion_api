@@ -90,6 +90,20 @@ em_db.postponeSessionEnd = (users_session_id, end_date) => {
 }
 
 
+//Create new user
+em_db.createUser = (mail, password) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `INSERT INTO users (mail, password) VALUES ("${mail}","${password}");`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+
 //Generate a new session for a user
 em_db.createUserSession = (token, endDate, userId) => {
     return new Promise((resolve, reject) => {
