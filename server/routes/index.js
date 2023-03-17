@@ -67,7 +67,6 @@ router.post("/signup", async (req, res) => {
     //Create account
     try {
         await db.createUser(user.mail, user.password)
-        console.log("SUCCESS")
     } catch (e) {
         console.log(e)
         res.sendStatus(500)
@@ -79,7 +78,6 @@ router.post("/signup", async (req, res) => {
 
     //create token
     const token = auth.createToken(user.mail, userData.user_id)
-    console.log(token)
 
     //Create session
     auth.createSession(res, token, userData.user_id)
