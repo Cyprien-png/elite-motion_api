@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import express from "express";
 import db from "../db/index.js";
 import auth from "./utils/auth.js";
+import sport from "./utils/program.js";
+import jwt from "jsonwebtoken"
 
 dotenv.config()
 const router = express.Router()
@@ -18,6 +20,7 @@ router.post("/login", async (req, res) => {
     }
 
     let userData = await auth.getUser(user, res)
+    //TODO : exit "user doesn't exist" if no userData
 
     if (!user.password || !userData.password || user.password !== userData.password) {
         //wrong password
@@ -91,8 +94,6 @@ router.post("/signup", async (req, res) => {
 
 })
 
-
-
 //Verify if user's token is still valid
 router.get("/sessionCheck", async (req, res) => {
     auth.checkSession(req)
@@ -108,6 +109,84 @@ router.get("/sessionCheck", async (req, res) => {
             res.status(500).send("Internal Server Error");
         });
 
+})
+
+
+
+
+
+
+
+
+
+
+router.get("/getPrograms", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //get user's programs
+                let programs = await sport.getPrograms(decoded.user_id)
+                res.json(programs)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.get("/getTrainingSessions", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+    .then(async (isValid) => {
+        if (isValid) {
+
+            //get user's id
+            const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+            const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+            //get user's Training sessions
+            let trSessions = await sport.getTraining(decoded.user_id)
+            res.json(trSessions)
+        } else {
+            res.status(401).send("Unauthorized");
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+    })
+})
+
+router.get("/getExercices", async (req, res) => {
+   //check if session still valid
+   auth.checkSession(req)
+   .then(async (isValid) => {
+       if (isValid) {
+
+           //get user's id
+           const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+           const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+           //get user's exercices
+           let exercices = await sport.getExercices(decoded.user_id)
+           res.json(exercices)
+       } else {
+           res.status(401).send("Unauthorized");
+       }
+   })
+   .catch((err) => {
+       console.log(err);
+       res.status(500).send("Internal Server Error");
+   })
 })
 
 

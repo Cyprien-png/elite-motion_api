@@ -117,5 +117,45 @@ em_db.createUserSession = (token, endDate, userId) => {
     })
 }
 
+
+
+
+
+
+em_db.getUsersprograms = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM sports_programs WHERE users_user_id =${user_id} ORDER BY is_active DESC;`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+em_db.getUsersTrainingSessions = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM training_sessions WHERE users_user_id =${user_id};`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+em_db.getUsersExercices = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM exercices WHERE users_user_id =${user_id};`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
 export default em_db
 
