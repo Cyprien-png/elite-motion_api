@@ -91,7 +91,7 @@ auth.checkSession = (req) => {
 auth.getUser = async(user, res) => {
     let userData
     try {
-        userData = (await db.getUser(user.mail))[0]
+        userData = (await db.getUser(user))[0]
         //wrong email
         if (!userData || !userData.mail || !userData.password) res.sendStatus(401)
     } catch (e) {
@@ -100,5 +100,7 @@ auth.getUser = async(user, res) => {
     }
     return userData
 }
+
+
 
 export default auth
