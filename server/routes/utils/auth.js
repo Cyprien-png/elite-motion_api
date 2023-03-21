@@ -88,15 +88,18 @@ auth.checkSession = (req) => {
     })
 };
 
-auth.getUser = async(user, res) => {
+auth.getUser = async (user) => {
     let userData
     try {
         userData = (await db.getUser(user))[0]
+
         //wrong email
-        if (!userData || !userData.mail || !userData.password) res.sendStatus(401)
+        if (!userData || !userData.mail || !userData.password) {
+            throw new Error("Invalid credentials")
+        }
     } catch (e) {
         console.log(e)
-        res.sendStatus(500)
+        throw new Error("Failed to get user")
     }
     return userData
 }

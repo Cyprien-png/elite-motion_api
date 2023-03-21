@@ -30,6 +30,7 @@ em_db.all = () => {
 
 //get user by mail or user_id
 em_db.getUser = (user) => {
+
     return new Promise((resolve, reject) => {
         pool.query(`SELECT * FROM users WHERE ${user.mail? 'mail LIKE "'+user.mail+'"': 'user_id ='+user.user_id}`, (err, results) => {
             if (err) {
