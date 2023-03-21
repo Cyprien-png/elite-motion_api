@@ -14,28 +14,32 @@ router.post("/login", async (req, res) => {
     const user = req.body
 
     if (!user || !user.mail || !user.password) {
-        res.sendStatus(500)
-        return
+        return res.sendStatus(500)
+
     }
 
-    let userData = await auth.getUser(user, res)
+    try {
+        let userData = await auth.getUser(user)
 
-    if (!user.password || !userData.password || user.password !== userData.password) {
-        //wrong password
+        if (!userData || !user.password || !userData.password || user.password !== userData.password) {
+            //wrong password
+            return res.sendStatus(401)
+        } else {
+            const token = auth.createToken(user.mail, userData.user_id)
+
+            //Create session
+            auth.createSession(res, token, userData.user_id)
+
+            //send token
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'POST');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+            return res.json({ token: token })
+        }
+    } catch (e) {
+        console.log(e)
         res.sendStatus(401)
-
-    } else {
-        const token = auth.createToken(user.mail, userData.user_id)
-
-        //Create session
-        auth.createSession(res, token, userData.user_id)
-
-        //send token
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'POST');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-        res.json({ token: token })
     }
 
 })
@@ -74,7 +78,7 @@ router.post("/signup", async (req, res) => {
     }
 
     //Read the new user fields in db to get its id
-    let userData = await auth.getUser(user, res)
+    let userData = await auth.getUser(user)
 
 
     //create token
@@ -122,7 +126,7 @@ router.get("/getUser", async (req, res) => {
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
-                let userData = await auth.getUser({ user_id: decoded.user_id }, res)
+                let userData = await auth.getUser({ user_id: decoded.user_id })
                 delete userData.password
 
 
@@ -146,7 +150,7 @@ router.post("/updateUser", async (req, res) => {
             if (isValid) {
 
                 const user = req.body
-                
+
                 //get user's id
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
