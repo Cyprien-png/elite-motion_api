@@ -56,10 +56,10 @@ router.post("/signup", async (req, res) => {
 
     }
 
+    //Check if email is already taken
     let ghostUser
-
     try {
-        ghostUser = await db.getUser(user.mail)
+        ghostUser = await db.getUser({mail:user.mail})
         if (ghostUser.length > 0) {
             return res.sendStatus(409)
 
