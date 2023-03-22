@@ -30,18 +30,19 @@ auth.createSession = async (res, token, user_id) => {
 //check if session is still valid
 auth.checkSession = (req) => {
     return new Promise((resolve, reject) => {
-        let result = true
+
 
         const authHeader = req.headers["authorization"];
         const token = authHeader && authHeader.split(" ")[1];
 
-        result = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET, { json: true }, async function (err, decoded) {
+        jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET, { json: true }, async function (err, decoded) {
 
             let sessions
             let currentSession
 
             if (!decoded || !decoded.user_id) {
                 resolve(false);
+                return
             }
 
             //getCurrentSession
@@ -73,7 +74,7 @@ auth.checkSession = (req) => {
             //check if token is valid 
             if (currentSession.length <= 0) {
                 resolve(false);
-
+                return
             } else {
                 //if right, renew date 
                 try {
@@ -87,6 +88,7 @@ auth.checkSession = (req) => {
         })
     })
 };
+
 
 auth.getUser = async (user) => {
     let userData
