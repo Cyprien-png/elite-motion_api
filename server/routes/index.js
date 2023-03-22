@@ -247,7 +247,7 @@ router.get("/getExercices", async (req, res) => {
         })
 })
 
-router.get("/removeExercice", async (req, res) => {
+router.post("/removeExercice", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
     .then(async (isValid) => {
@@ -269,6 +269,38 @@ router.get("/removeExercice", async (req, res) => {
             console.log(err);
             res.status(500).send("Internal Server Error");
         })
+})
+
+router.post("/editExercice", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                const exo = req.body
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //update user's data
+                try {
+                    await db.editExercice(exo, decoded.user_id)
+                    res.sendStatus(200)
+
+                } catch (e) {
+                    res.sendStatus(409)
+                }
+
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+
 })
 
 

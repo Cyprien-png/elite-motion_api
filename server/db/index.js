@@ -193,5 +193,17 @@ em_db.deleteExercice = (exercice_id, user_id) => {
     })
 }
 
+//update user's data
+em_db.editExercice = (exo, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`UPDATE exercices SET name = '${exo.name}', description = '${exo.description}', reps = '${exo.reps}', sets = '${exo.sets}' WHERE exercice_id = ${exo.exercice_id} AND users_user_id = ${user_id};`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
 export default em_db
 
