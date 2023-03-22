@@ -172,7 +172,19 @@ em_db.createExo = (exercice, userId) => {
 em_db.getUsersExercices = (user_id) => {
     return new Promise((resolve, reject) => {
         pool.query(
-            `SELECT * FROM exercices WHERE users_user_id =${user_id};`, (err, results) => {
+            `SELECT * FROM exercices WHERE users_user_id =${user_id} ORDER BY exercice_id DESC;`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+em_db.deleteExercice = (exercice_id, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `DELETE FROM exercices WHERE exercice_id =${exercice_id} AND users_user_id = ${user_id}` , (err, results) => {
                 if (err) {
                     return reject(err)
                 }
