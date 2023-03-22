@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import db from "../db/index.js";
 import auth from "./utils/auth.js";
-import sport from "./utils/program.js";
+import sport from "./utils/sport.js";
 import jwt from "jsonwebtoken"
 
 dotenv.config()
