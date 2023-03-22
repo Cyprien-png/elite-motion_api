@@ -130,5 +130,19 @@ em_db.createUserSession = (token, endDate, userId) => {
     })
 }
 
+//Create new exercice for the user
+em_db.createExo = (exercice, userId) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `INSERT INTO exercices (name, description, reps, sets, users_user_id) 
+            VALUES ("${exercice.name}", "${exercice.description}", "${exercice.reps}", "${exercice.sets}", "${userId}") `, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
 export default em_db
 
