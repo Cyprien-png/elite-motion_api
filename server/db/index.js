@@ -28,10 +28,23 @@ em_db.all = () => {
 }
 
 
-//get user by mail
-em_db.getUser = (mail) => {
+//get user by mail or user_id
+em_db.getUser = (user) => {
+
     return new Promise((resolve, reject) => {
-        pool.query(`SELECT * FROM users WHERE mail LIKE '${mail}'`, (err, results) => {
+        pool.query(`SELECT * FROM users WHERE ${user.mail? 'mail LIKE "'+user.mail+'"': 'user_id ='+user.user_id}`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+//update user's data
+em_db.updateUser = (user, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`UPDATE users SET mail = '${user.mail}', firstname = '${user.firstname}', lastname = '${user.lastname}', birthdate = '${user.birthdate}' WHERE user_id = ${user_id};`, (err, results) => {
             if (err) {
                 return reject(err)
             }
@@ -118,10 +131,6 @@ em_db.createUserSession = (token, endDate, userId) => {
 }
 
 
-
-
-
-
 em_db.getUsersprograms = (user_id) => {
     return new Promise((resolve, reject) => {
         pool.query(
@@ -143,6 +152,20 @@ em_db.getUsersTrainingSessions = (user_id) => {
                 }
                 return resolve(results)
             })
+      })
+}
+            
+//Create new exercice for the user
+em_db.createExo = (exercice, userId) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `INSERT INTO exercices (name, description, reps, sets, users_user_id) 
+            VALUES ("${exercice.name}", "${exercice.description}", "${exercice.reps}", "${exercice.sets}", "${userId}") `, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
     })
 }
 
@@ -157,5 +180,6 @@ em_db.getUsersExercices = (user_id) => {
             })
     })
 }
+
 export default em_db
 

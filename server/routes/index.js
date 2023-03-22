@@ -15,29 +15,31 @@ router.post("/login", async (req, res) => {
     const user = req.body
 
     if (!user || !user.mail || !user.password) {
-        res.sendStatus(500)
-        return
+        return res.sendStatus(500)
     }
 
-    let userData = await auth.getUser(user, res)
-    //TODO : exit "user doesn't exist" if no userData
+    try {
+        let userData = await auth.getUser(user)
 
-    if (!user.password || !userData.password || user.password !== userData.password) {
-        //wrong password
+        if (!userData || !user.password || !userData.password || user.password !== userData.password) {
+            //wrong password
+            return res.sendStatus(401)
+        } else {
+            const token = auth.createToken(user.mail, userData.user_id)
+
+            //Create session
+            auth.createSession(res, token, userData.user_id)
+
+            //send token
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'POST');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+            return res.json({ token: token })
+        }
+    } catch (e) {
+        console.log(e)
         res.sendStatus(401)
-
-    } else {
-        const token = auth.createToken(user.mail, userData.user_id)
-
-        //Create session
-        auth.createSession(res, token, userData.user_id)
-
-        //send token
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'POST');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-        res.json({ token: token })
     }
 
 })
@@ -76,7 +78,7 @@ router.post("/signup", async (req, res) => {
     }
 
     //Read the new user fields in db to get its id
-    let userData = await auth.getUser(user, res)
+    let userData = await auth.getUser(user)
 
 
     //create token
@@ -111,6 +113,171 @@ router.get("/sessionCheck", async (req, res) => {
 
 })
 
+
+router.get("/getUser", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                let userData = await auth.getUser({ user_id: decoded.user_id })
+                delete userData.password
+
+
+                res.json(userData)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+
+})
+
+
+router.post("/updateUser", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                const user = req.body
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //update user's data
+                try {
+                    await db.updateUser(user, decoded.user_id)
+                    res.sendStatus(200)
+
+                } catch (e) {
+                    res.sendStatus(409)
+                }
+
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+
+})
+
+
+
+
+
+
+router.get("/getPrograms", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //get user's programs
+                let programs = await sport.getPrograms(decoded.user_id)
+                res.json(programs)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.get("/getTrainingSessions", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //get user's Training sessions
+                let trSessions = await sport.getTraining(decoded.user_id)
+                res.json(trSessions)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.get("/getExercices", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //get user's exercices
+                let exercices = await sport.getExercices(decoded.user_id)
+                res.json(exercices)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.post("/createExercice", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                const exercice = req.body
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //get user's exercices
+
+                try {
+                    await db.createExo(exercice, decoded.user_id)
+                } catch (e) {
+                    console.log(e)
+                    return res.sendStatus(500)
+                }
+
+                res.sendStatus(200)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
 
 
 
