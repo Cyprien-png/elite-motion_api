@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import db from "../db/index.js";
 import auth from "./utils/auth.js";
+import sport from "./utils/sport.js";
 import jwt from "jsonwebtoken"
 
 dotenv.config()
@@ -15,7 +16,6 @@ router.post("/login", async (req, res) => {
 
     if (!user || !user.mail || !user.password) {
         return res.sendStatus(500)
-
     }
 
     try {
@@ -96,8 +96,6 @@ router.post("/signup", async (req, res) => {
     res.json({ token: token })
 
 })
-
-
 
 //Verify if user's token is still valid
 router.get("/sessionCheck", async (req, res) => {
@@ -441,5 +439,6 @@ router.get("/deleteUser", async (req, res) => {
         res.status(500).send("Internal Server Error");
     })
  })
+
 
 export default router

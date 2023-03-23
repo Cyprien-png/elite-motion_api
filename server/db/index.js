@@ -142,5 +142,80 @@ em_db.createUserSession = (token, endDate, userId) => {
     })
 }
 
+
+em_db.getUsersprograms = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM sports_programs WHERE users_user_id =${user_id} ORDER BY is_active DESC;`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+em_db.getUsersTrainingSessions = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM training_sessions WHERE users_user_id =${user_id};`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+      })
+}
+            
+//Create new exercice for the user
+em_db.createExo = (exercice, userId) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `INSERT INTO exercices (name, description, reps, sets, users_user_id) 
+            VALUES ("${exercice.name}", "${exercice.description}", "${exercice.reps}", "${exercice.sets}", "${userId}") `, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+em_db.getUsersExercices = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM exercices WHERE users_user_id =${user_id} ORDER BY exercice_id DESC;`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+em_db.deleteExercice = (exercice_id, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `DELETE FROM exercices WHERE exercice_id =${exercice_id} AND users_user_id = ${user_id}` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+//update user's data
+em_db.editExercice = (exo, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`UPDATE exercices SET name = '${exo.name}', description = '${exo.description}', reps = '${exo.reps}', sets = '${exo.sets}' WHERE exercice_id = ${exo.exercice_id} AND users_user_id = ${user_id};`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
 export default em_db
 
