@@ -116,6 +116,18 @@ em_db.createUser = (mail, password) => {
     })
 }
 
+em_db.deleteUser = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `DELETE FROM users WHERE user_id = ${user_id}` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
 
 //Generate a new session for a user
 em_db.createUserSession = (token, endDate, userId) => {
