@@ -56,10 +56,11 @@ router.post("/signup", async (req, res) => {
 
     }
 
+    //Check if email is already taken
     let ghostUser
-
     try {
-        ghostUser = await db.getUser(user.mail)
+        ghostUser = await db.getUser({mail:user.mail})
+
         if (ghostUser.length > 0) {
             return res.sendStatus(409)
 
@@ -247,6 +248,7 @@ router.get("/getExercices", async (req, res) => {
         })
 })
 
+
 router.post("/removeExercice", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
@@ -416,6 +418,27 @@ router.get("/getExercices", async (req, res) => {
    })
 })
 
+router.get("/deleteUser", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+    .then(async (isValid) => {
+        if (isValid) {
+ 
+            //get user's id
+            const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+            const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+            
+            //get user's exercices
+            await db.deleteUser(decoded.user_id)
+            res.sendStatus(200)
+        } else {
+            res.status(401).send("Unauthorized");
+        }
+    })
+    .catch((err) => {
+        res.status(500).send("Internal Server Error");
+    })
+ })
 
 
 export default router

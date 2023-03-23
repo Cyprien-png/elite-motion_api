@@ -32,7 +32,7 @@ em_db.all = () => {
 em_db.getUser = (user) => {
 
     return new Promise((resolve, reject) => {
-        pool.query(`SELECT * FROM users WHERE ${user.mail? 'mail LIKE "'+user.mail+'"': 'user_id ='+user.user_id}`, (err, results) => {
+        pool.query(`SELECT * FROM users WHERE ${user.mail ? 'mail LIKE "' + user.mail + '"' : 'user_id =' + user.user_id}`, (err, results) => {
             if (err) {
                 return reject(err)
             }
@@ -108,6 +108,18 @@ em_db.createUser = (mail, password) => {
     return new Promise((resolve, reject) => {
         pool.query(
             `INSERT INTO users (mail, password) VALUES ("${mail}","${password}");`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+em_db.deleteUser = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `DELETE FROM users WHERE user_id = ${user_id}` , (err, results) => {
                 if (err) {
                     return reject(err)
                 }
