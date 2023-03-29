@@ -41,15 +41,18 @@ auth.checkSession = (req) => {
             let currentSession
 
             if (!decoded || !decoded.user_id) {
-                resolve(false);
-                return
+                return resolve(false);
             }
 
             //getCurrentSession
             try {
                 currentSession = (await db.getSessionByToken(token))
+                if (moment(currentSession[0].end_date, "YYYY-MM-DDTHH:mm:ssZ").format("x") < moment().format("x")) {
+                    await db.deleteUsersSession(session.users_session_id)
+                    return resolve(false)
+                }
             } catch (e) {
-                reject(e);
+                return reject(e);
             }
 
             //get all tokens of current user 
@@ -73,15 +76,14 @@ auth.checkSession = (req) => {
 
             //check if token is valid 
             if (currentSession.length <= 0) {
-                resolve(false);
-                return
+                return resolve(false);
             } else {
                 //if right, renew date 
                 try {
                     await db.postponeSessionEnd(currentSession[0].users_session_id, moment(moment()).add(1, "M").format("YYYY-MM-DDTHH:mm:ssZ"))
                 } catch (e) {
                     console.log(e)
-                    reject(e);
+                    return reject(e);
                 }
             }
             resolve(true);
