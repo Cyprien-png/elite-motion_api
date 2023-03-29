@@ -59,7 +59,7 @@ router.post("/signup", async (req, res) => {
     //Check if email is already taken
     let ghostUser
     try {
-        ghostUser = await db.getUser({mail:user.mail})
+        ghostUser = await db.getUser({ mail: user.mail })
 
         if (ghostUser.length > 0) {
             return res.sendStatus(409)
@@ -142,7 +142,7 @@ router.get("/getUser", async (req, res) => {
 })
 
 
-router.post("/updateUser", async (req, res) => {
+router.put("/updateUser", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
         .then(async (isValid) => {
@@ -150,17 +150,25 @@ router.post("/updateUser", async (req, res) => {
 
                 const user = req.body
 
-                //get user's id
-                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
-                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+                //Check if informations are in a valid format
+                if ('user_id' in user && 'mail' in user && 'firstname' in user && 'lastname' in user && 'birthdate' in user && 'profile_picture' in user) {
+                    //get user's id
+                    const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                    const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
-                //update user's data
-                try {
-                    await db.updateUser(user, decoded.user_id)
-                    res.sendStatus(200)
+                    //update user's data
+                    try {
+                        await db.updateUser(user, decoded.user_id)
+                        res.sendStatus(200)
 
-                } catch (e) {
-                    res.sendStatus(409)
+                    } catch (e) {
+                        res.sendStatus(409)
+                    }
+
+                }
+
+                else {
+                    res.status(500).send("Internal Server Error")
                 }
 
             } else {
@@ -249,11 +257,11 @@ router.get("/getExercices", async (req, res) => {
 })
 
 
-router.post("/removeExercice", async (req, res) => {
+router.delete("/removeExercice", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
-    .then(async (isValid) => {
-        if (isValid) {
+        .then(async (isValid) => {
+            if (isValid) {
                 const exo = req.body
 
                 //get user's id
@@ -273,7 +281,7 @@ router.post("/removeExercice", async (req, res) => {
         })
 })
 
-router.post("/editExercice", async (req, res) => {
+router.put("/editExercice", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
         .then(async (isValid) => {
@@ -372,73 +380,76 @@ router.get("/getPrograms", async (req, res) => {
         })
 })
 
+
 router.get("/getTrainingSessions", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
-    .then(async (isValid) => {
-        if (isValid) {
+        .then(async (isValid) => {
+            if (isValid) {
 
-            //get user's id
-            const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
-            const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
-            //get user's Training sessions
-            let trSessions = await sport.getTraining(decoded.user_id)
-            res.json(trSessions)
-        } else {
-            res.status(401).send("Unauthorized");
-        }
-    })
-    .catch((err) => {
-        console.log(err);
-        res.status(500).send("Internal Server Error");
-    })
+                //get user's Training sessions
+                let trSessions = await sport.getTraining(decoded.user_id)
+                res.json(trSessions)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
 })
+
 
 router.get("/getExercices", async (req, res) => {
-   //check if session still valid
-   auth.checkSession(req)
-   .then(async (isValid) => {
-       if (isValid) {
-
-           //get user's id
-           const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
-           const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
-
-           //get user's exercices
-           let exercices = await sport.getExercices(decoded.user_id)
-           res.json(exercices)
-       } else {
-           res.status(401).send("Unauthorized");
-       }
-   })
-   .catch((err) => {
-       console.log(err);
-       res.status(500).send("Internal Server Error");
-   })
-})
-
-router.get("/deleteUser", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
-    .then(async (isValid) => {
-        if (isValid) {
- 
-            //get user's id
-            const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
-            const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
-            
-            //get user's exercices
-            await db.deleteUser(decoded.user_id)
-            res.sendStatus(200)
-        } else {
-            res.status(401).send("Unauthorized");
-        }
-    })
-    .catch((err) => {
-        res.status(500).send("Internal Server Error");
-    })
- })
+        .then(async (isValid) => {
+            if (isValid) {
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //get user's exercices
+                let exercices = await sport.getExercices(decoded.user_id)
+                res.json(exercices)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+
+router.delete("/deleteUser", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //get user's exercices
+                await db.deleteUser(decoded.user_id)
+                res.sendStatus(200)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            res.status(500).send("Internal Server Error");
+        })
+})
 
 
 export default router
