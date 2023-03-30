@@ -262,8 +262,7 @@ router.delete("/removeExercice", async (req, res) => {
         .then(async (isValid) => {
             if (isValid) {
                 const exo = req.body
-                console.log(exo)
-
+                
                 //get user's id
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
@@ -289,7 +288,6 @@ router.put("/editExercice", async (req, res) => {
             if (isValid) {
 
                 const exo = req.body
-                console.log(exo)
 
                 //get user's id
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
