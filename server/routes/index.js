@@ -370,4 +370,29 @@ router.delete("/deleteUser", async (req, res) => {
 })
 
 
+router.post("/createTraining", async (req, res) => {
+    //Create a new empty training
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                const training = req.body
+
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                await db.createTraining(training.name, decoded.user_id)
+
+
+                res.sendStatus(200)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+
 export default router

@@ -217,5 +217,19 @@ em_db.editExercice = (exo, user_id) => {
     })
 }
 
+
+//create an empty training session
+em_db.createTraining = (training_name, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`INSERT INTO training_sessions (name, users_user_id) VALUES ("${training_name}", '${user_id}');`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+
 export default em_db
 
