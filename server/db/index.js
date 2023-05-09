@@ -142,30 +142,6 @@ em_db.createUserSession = (token, endDate, userId) => {
     })
 }
 
-
-em_db.getUsersprograms = (user_id) => {
-    return new Promise((resolve, reject) => {
-        pool.query(
-            `SELECT * FROM sports_programs WHERE users_user_id =${user_id} ORDER BY is_active DESC;`, (err, results) => {
-                if (err) {
-                    return reject(err)
-                }
-                return resolve(results)
-            })
-    })
-}
-
-em_db.getUsersTrainingSessions = (user_id) => {
-    return new Promise((resolve, reject) => {
-        pool.query(
-            `SELECT * FROM training_sessions WHERE users_user_id =${user_id};`, (err, results) => {
-                if (err) {
-                    return reject(err)
-                }
-                return resolve(results)
-            })
-      })
-}
             
 //Create new exercice for the user
 em_db.createExo = (exercice, userId) => {
@@ -242,6 +218,19 @@ em_db.getTrainingByName = (training_name, user_id) => {
     })
 }
 
+//get all training sessions of a user
+em_db.getUsersTrainingSessions = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM training_sessions WHERE users_user_id =${user_id};`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+      })
+}
+
 //add exercices to a training session
 em_db.fillTraining = (training_id, exercise_id) => {
     return new Promise((resolve, reject) => {
@@ -251,6 +240,18 @@ em_db.fillTraining = (training_id, exercise_id) => {
             }
             return resolve(results)
         })
+    })
+}
+
+em_db.deleteTraining = (training_session_id, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `DELETE FROM training_sessions WHERE training_session_id = ${training_session_id} and users_user_id = ${user_id}` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
     })
 }
 
