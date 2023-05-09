@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `elite-motion`.`training_sessions` (
   `users_user_id` INT NOT NULL,
   PRIMARY KEY (`training_session_id`, `users_user_id`),
   INDEX `fk_training_sessions_users1_idx` (`users_user_id` ASC) VISIBLE,
+   CONSTRAINT `UC_training_sessions` UNIQUE (name,users_user_id),
   CONSTRAINT `fk_training_sessions_users1`
     FOREIGN KEY (`users_user_id`)
     REFERENCES `elite-motion`.`users` (`user_id`)

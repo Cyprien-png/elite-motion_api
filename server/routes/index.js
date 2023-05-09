@@ -262,7 +262,7 @@ router.delete("/removeExercice", async (req, res) => {
         .then(async (isValid) => {
             if (isValid) {
                 const exo = req.body
-                
+
                 //get user's id
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
@@ -371,7 +371,7 @@ router.delete("/deleteUser", async (req, res) => {
 
 
 router.post("/createTraining", async (req, res) => {
-    //Create a new empty training
+    //Create a new training session
     auth.checkSession(req)
         .then(async (isValid) => {
             if (isValid) {
@@ -381,8 +381,25 @@ router.post("/createTraining", async (req, res) => {
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
-                await db.createTraining(training.name, decoded.user_id)
+                //generate the the new training (empty)
+                try {
+                    await db.createTraining(training.name, decoded.user_id)
+                } catch (e) {
+                    if (e.code == "ER_DUP_ENTRY") {
+                        //The user already have a training with this name
+                        return res.sendStatus(409)
+                    } else {
+                        return res.sendStatus(500)
+                    }
+                }
 
+                //get new training ID
+                let newTraining = (await db.getTrainingByName(training.name, decoded.user_id))[0]
+
+                //link exercises to the new training session
+                training.exercisesId.forEach(async (exo) => {
+                    await db.fillTraining(newTraining.training_session_id, exo.exerciseId)
+                })
 
                 res.sendStatus(200)
             } else {

@@ -230,6 +230,30 @@ em_db.createTraining = (training_name, user_id) => {
     })
 }
 
+//get a specific training session of a user by its name
+em_db.getTrainingByName = (training_name, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`SELECT * FROM training_sessions WHERE name = "${training_name}" and users_user_id = "${user_id}";`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+//add exercices to a training session
+em_db.fillTraining = (training_id, exercise_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`INSERT INTO training_sessions_group_exercices (training_sessions_training_session_id, exercices_exercice_id) VALUES ('${training_id}', '${exercise_id}');`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
 
 export default em_db
 
