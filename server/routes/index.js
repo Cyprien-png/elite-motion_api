@@ -467,7 +467,6 @@ router.put("/editTrainingSession", async (req, res) => {
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
-
                 try {
                     //edit training name
                     await db.editTrainingName(training.training_session_id, decoded.user_id, training.name)
@@ -476,8 +475,8 @@ router.put("/editTrainingSession", async (req, res) => {
                     await db.clearTraining(training.training_session_id)
 
                      //link exercises to the current training session
-                     training.exercisesId.forEach(async (exo) => {
-                         await db.fillTraining(training.training_session_id, exo.exerciseId)
+                     training.exercises.forEach(async (exo) => {
+                         await db.fillTraining(training.training_session_id, exo.exercice_id)
                      })
 
                     } catch (e) {
