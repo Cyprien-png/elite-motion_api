@@ -292,6 +292,19 @@ em_db.clearTraining = (training_session_id) => {
     })
 }
 
+//get training session by exercice
+em_db.getTrainingExercicesByExercise = (exercise_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM training_sessions_group_exercices WHERE exercices_exercice_id = ${exercise_id};` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
 
 export default em_db
 

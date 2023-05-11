@@ -267,8 +267,22 @@ router.delete("/removeExercice", async (req, res) => {
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
+                let linkedTrainingsessions = await db.getTrainingExercicesByExercise(exo.exercice_id)
+
+
+                //remove every training that have less than 2 exercises
+                linkedTrainingsessions.forEach(async (session) => {
+                    let training = await db.getTrainingExercices(session.training_sessions_training_session_id)
+
+                    if (training.length <= 2) {
+                        //delete user's training session
+                        await db.deleteTraining(training[0].training_sessions_training_session_id, decoded.user_id)
+                    }
+                })
+
                 //get user's exercices
                 await db.deleteExercice(exo.exercice_id, decoded.user_id)
+
                 res.sendStatus(200)
             } else {
                 res.status(401).send("Unauthorized");
@@ -474,19 +488,19 @@ router.put("/editTrainingSession", async (req, res) => {
                     //remove all exercises from the training session
                     await db.clearTraining(training.training_session_id)
 
-                     //link exercises to the current training session
-                     training.exercises.forEach(async (exo) => {
-                         await db.fillTraining(training.training_session_id, exo.exercice_id)
-                     })
+                    //link exercises to the current training session
+                    training.exercises.forEach(async (exo) => {
+                        await db.fillTraining(training.training_session_id, exo.exercice_id)
+                    })
 
-                    } catch (e) {
-                        if (e.code == "ER_DUP_ENTRY") {
-                            //The user already have a training with this name
-                            return res.sendStatus(409)
-                        } else {
-                            return res.sendStatus(500)
-                        }
+                } catch (e) {
+                    if (e.code == "ER_DUP_ENTRY") {
+                        //The user already have a training with this name
+                        return res.sendStatus(409)
+                    } else {
+                        return res.sendStatus(500)
                     }
+                }
 
                 res.sendStatus(200)
             } else {
