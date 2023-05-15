@@ -152,4 +152,5 @@ insert into training_sessions_group_exercices (training_sessions_training_sessio
 insert into training_sessions_group_exercices (training_sessions_training_session_id, exercices_exercice_id) values (8, 5);
 insert into training_sessions_group_exercices (training_sessions_training_session_id, exercices_exercice_id) values (7, 21);
 insert into training_sessions_group_exercices (training_sessions_training_session_id, exercices_exercice_id) values (1, 25);
+INSERT INTO users_sessions (token, end_date, users_user_id) VALUES ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtYWlsIjoiYWRtaW5AdGVzdC5jaCIsInVzZXJfaWQiOjEsImNyZWF0ZWRfYXQiOiIyMDIzLTA1LTExVDEwOjI0OjU1KzAyOjAwIiwiaWF0IjoxNjgzNzkzNDk1fQ.DooNxNMvt818aibTYOOXBrKjbLhtXlqj1l3wB_B18wY","2025-06-11T11:08:14+02:00", 1);
 
