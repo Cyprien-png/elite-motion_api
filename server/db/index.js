@@ -305,6 +305,32 @@ em_db.getTrainingExercicesByExercise = (exercise_id) => {
     })
 }
 
+//schedule a training session
+em_db.scheduleTraining = (date, training_session_id, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `INSERT INTO schedules (date, training_sessions_training_session_id, training_sessions_users_user_id) VALUES ("${date}", ${training_session_id}, ${user_id})` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+//get all scheduled training session of an user
+em_db.getUserSchedules = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM schedules WHERE training_sessions_users_user_id = ${user_id};` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
 
 export default em_db
 

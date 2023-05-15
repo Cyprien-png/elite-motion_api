@@ -514,5 +514,55 @@ router.put("/editTrainingSession", async (req, res) => {
 })
 
 
+router.post("/createNewSchedule", async (req, res) => {
+    //Create a new training session
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                const schedule = req.body
+                //get user info
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+                
+                console.log(schedule.date, schedule.training_session_id, decoded.user_id)
+                try {
+                    await db.scheduleTraining(schedule.date, schedule.training_session_id, decoded.user_id)
+                } catch (e) {
+                    return res.sendStatus(500)
+                }
+
+                res.sendStatus(200)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.get("/getUserSchedules", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                //get user info
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //get user's scheduled training sessions
+                let schedules = await db.getUserSchedules(decoded.user_id)
+                res.json(schedules)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
 
 export default router
