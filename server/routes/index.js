@@ -525,7 +525,6 @@ router.post("/createNewSchedule", async (req, res) => {
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
                 
-                console.log(schedule.date, schedule.training_session_id, decoded.user_id)
                 try {
                     await db.scheduleTraining(schedule.date, schedule.training_session_id, decoded.user_id)
                 } catch (e) {

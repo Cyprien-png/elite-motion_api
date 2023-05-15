@@ -45,7 +45,10 @@ CREATE TABLE IF NOT EXISTS `elite-motion`.`training_sessions` (
     FOREIGN KEY (`users_user_id`)
     REFERENCES `elite-motion`.`users` (`user_id`)
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
+    ON UPDATE CASCADE,
+  CONSTRAINT `uq_training_sessions_name`
+    UNIQUE (`name`, `users_user_id`)
+)
 ENGINE = InnoDB;
 
 
