@@ -142,30 +142,6 @@ em_db.createUserSession = (token, endDate, userId) => {
     })
 }
 
-
-em_db.getUsersprograms = (user_id) => {
-    return new Promise((resolve, reject) => {
-        pool.query(
-            `SELECT * FROM sports_programs WHERE users_user_id =${user_id} ORDER BY is_active DESC;`, (err, results) => {
-                if (err) {
-                    return reject(err)
-                }
-                return resolve(results)
-            })
-    })
-}
-
-em_db.getUsersTrainingSessions = (user_id) => {
-    return new Promise((resolve, reject) => {
-        pool.query(
-            `SELECT * FROM training_sessions WHERE users_user_id =${user_id};`, (err, results) => {
-                if (err) {
-                    return reject(err)
-                }
-                return resolve(results)
-            })
-      })
-}
             
 //Create new exercice for the user
 em_db.createExo = (exercice, userId) => {
@@ -205,7 +181,7 @@ em_db.deleteExercice = (exercice_id, user_id) => {
     })
 }
 
-//update user's data
+//update exercice data
 em_db.editExercice = (exo, user_id) => {
     return new Promise((resolve, reject) => {
         pool.query(`UPDATE exercices SET name = "${exo.name}", description = "${exo.description}", reps = "${exo.reps}", sets = "${exo.sets}" WHERE exercice_id = ${exo.exercice_id} AND users_user_id = ${user_id};`, (err, results) => {
@@ -216,6 +192,119 @@ em_db.editExercice = (exo, user_id) => {
         })
     })
 }
+
+
+//create an empty training session
+em_db.createTraining = (training_name, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`INSERT INTO training_sessions (name, users_user_id) VALUES ("${training_name}", '${user_id}');`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+//get a specific training session of a user by its name
+em_db.getTrainingByName = (training_name, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`SELECT * FROM training_sessions WHERE name = "${training_name}" and users_user_id = "${user_id}";`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+//get all training sessions of a user
+em_db.getUsersTrainingSessions = (user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM training_sessions WHERE users_user_id =${user_id};`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+      })
+}
+
+//add exercices to a training session
+em_db.fillTraining = (training_id, exercise_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`INSERT INTO training_sessions_group_exercices (training_sessions_training_session_id, exercices_exercice_id) VALUES ('${training_id}', '${exercise_id}');`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+em_db.deleteTraining = (training_session_id, user_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `DELETE FROM training_sessions WHERE training_session_id = ${training_session_id} and users_user_id = ${user_id}` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+
+em_db.getTrainingExercices = (training_session_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM training_sessions_group_exercices WHERE training_sessions_training_session_id = ${training_session_id};` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+//update training session
+em_db.editTrainingName = (training_session_id, users_user_id, newName) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`UPDATE training_sessions SET name = "${newName}" WHERE training_session_id = ${training_session_id} and users_user_id = ${users_user_id}`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+//clear training from exercises
+em_db.clearTraining = (training_session_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(`DELETE FROM training_sessions_group_exercices WHERE training_sessions_training_session_id = ${training_session_id}`, (err, results) => {
+            if (err) {
+                return reject(err)
+            }
+            return resolve(results)
+        })
+    })
+}
+
+//get training session by exercice
+em_db.getTrainingExercicesByExercise = (exercise_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM training_sessions_group_exercices WHERE exercices_exercice_id = ${exercise_id};` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
 
 export default em_db
 

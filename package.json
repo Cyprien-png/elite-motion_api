@@ -5,7 +5,7 @@
   "main": "database.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "npx nodemon server/server.js -w server",
     "start": "npx node server/server.js -w server"
   },
