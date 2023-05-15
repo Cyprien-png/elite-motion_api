@@ -524,7 +524,15 @@ router.post("/createNewSchedule", async (req, res) => {
                 //get user info
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
-                
+
+                //delete if a training is already planned at this date
+                try {
+                    await db.deleteScheduledTraining(decoded.user_id, schedule.date)
+                } catch {
+                    res.sendStatus(500)
+                }
+
+                //schedule new training
                 try {
                     await db.scheduleTraining(schedule.date, schedule.training_session_id, decoded.user_id)
                 } catch (e) {
@@ -554,6 +562,34 @@ router.get("/getUserSchedules", async (req, res) => {
                 //get user's scheduled training sessions
                 let schedules = await db.getUserSchedules(decoded.user_id)
                 res.json(schedules)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.delete("/removeScheduledTraining", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+                const schedule = req.body
+
+                //get user data
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decodedUser = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //delete user's training session
+                try {
+                    await db.deleteScheduledTraining(decodedUser.user_id, schedule.date)
+                    res.sendStatus(200)
+                } catch {
+                    res.sendStatus(500)
+                }
             } else {
                 res.status(401).send("Unauthorized");
             }

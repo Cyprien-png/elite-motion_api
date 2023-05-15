@@ -331,6 +331,19 @@ em_db.getUserSchedules = (user_id) => {
     })
 }
 
+//delete a scheduled training session
+em_db.deleteScheduledTraining = (user_id, date) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `DELETE FROM schedules WHERE training_sessions_users_user_id = ${user_id} AND date = "${date}"` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
 
 export default em_db
 
