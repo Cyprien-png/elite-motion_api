@@ -13,11 +13,12 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/api', apiRouter)
 
-const job = schedule.scheduleJob('*/20 * * * * *', () => {
-    sendMail()
-  });
+const job = schedule.scheduleJob('00 12 * * *', () => {
+  console.log("== Sending Emails ==")
+  sendMail()
+})
 
 
 app.listen(process.env.PORT || "3030", () => {
-    console.log(`server is running on port: ${process.env.PORT || '3030'}`)
+  console.log(`server is running on port: ${process.env.PORT || '3030'}`)
 })

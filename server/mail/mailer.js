@@ -6,19 +6,19 @@ config()
 const transporter = nodemailer.createTransport({
     service: "hotmail",
     auth: {
-        user: "elite-motion@outlook.com",
+        user: process.env.MAIL_ADDRESS,
         pass: process.env.MAIL_PASSWORD
     }
 });
 
-export const sendingEmail = () => {
+export const sendingEmail = (receiver, subject, content) => {
 
     const mailOptions = {
-        from: 'elite-motion@outlook.com',
-        to: 'cyprien.jaquier@hotmail.com',
-        subject: 'Ne ratez pas votre entrainement demain !',
-        text: 'Bonjour, \n\n Selon votre programme demain vous travaillerez .... \n Bonne séance ! \n\n Cordialement, l\'équipe Elite motion.'
-    };
+        from: process.env.MAIL_ADDRESS,
+        to: receiver,
+        subject: subject,
+        text: content
+    }
 
     //send mail
     transporter.sendMail(mailOptions, (error, info) => {
@@ -27,6 +27,6 @@ export const sendingEmail = () => {
         } else {
             console.log('E-mail envoyé avec succès :', info.response);
         }
-    });
+    })
 }
 
