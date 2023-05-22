@@ -44,7 +44,7 @@ em_db.getUser = (user) => {
 //update user's data
 em_db.updateUser = (user, user_id) => {
     return new Promise((resolve, reject) => {
-        pool.query(`UPDATE users SET mail = '${user.mail}', firstname = '${user.firstname}', lastname = '${user.lastname}', birthdate = '${user.birthdate}' WHERE user_id = ${user_id};`, (err, results) => {
+        pool.query(`UPDATE users SET mail = '${user.mail}', firstname = '${user.firstname? user.firstname: ""}', lastname = '${user.lastname? user.lastname : ""}', birthdate = '${user.birthdate? user.birthdate : ""}' WHERE user_id = ${user_id};`, (err, results) => {
             if (err) {
                 return reject(err)
             }
@@ -169,6 +169,19 @@ em_db.getUsersExercices = (user_id) => {
     })
 }
 
+//get exercise by id
+em_db.getExerciseById = (exercise_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM exercices WHERE exercice_id =${exercise_id};`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
 em_db.deleteExercice = (exercice_id, user_id) => {
     return new Promise((resolve, reject) => {
         pool.query(
@@ -223,6 +236,19 @@ em_db.getUsersTrainingSessions = (user_id) => {
     return new Promise((resolve, reject) => {
         pool.query(
             `SELECT * FROM training_sessions WHERE users_user_id =${user_id};`, (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+      })
+}
+
+//get training sessions by id
+em_db.getTrainingSessionsByID = (training_session_id) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM training_sessions WHERE training_session_id = ${training_session_id};`, (err, results) => {
                 if (err) {
                     return reject(err)
                 }
@@ -336,6 +362,19 @@ em_db.deleteScheduledTraining = (user_id, date) => {
     return new Promise((resolve, reject) => {
         pool.query(
             `DELETE FROM schedules WHERE training_sessions_users_user_id = ${user_id} AND date = "${date}"` , (err, results) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(results)
+            })
+    })
+}
+
+//get all scheduled training session on a date
+em_db.getScheduleOnDate = (date) => {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT * FROM schedules WHERE date = "${date}";` , (err, results) => {
                 if (err) {
                     return reject(err)
                 }
