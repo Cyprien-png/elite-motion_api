@@ -150,9 +150,9 @@ router.put("/updateUser", async (req, res) => {
             if (isValid) {
 
                 const user = req.body
-
+                
                 //Check if informations are in a valid format
-                if ('user_id' in user && 'mail' in user && 'firstname' in user && 'lastname' in user && 'birthdate' in user && 'profile_picture' in user) {
+                if ('user_id' in user && 'mail' in user && 'firstname' in user && 'lastname' in user && 'birthdate' in user) {
                     //get user's id
                     const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                     const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
