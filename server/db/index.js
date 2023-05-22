@@ -44,7 +44,7 @@ em_db.getUser = (user) => {
 //update user's data
 em_db.updateUser = (user, user_id) => {
     return new Promise((resolve, reject) => {
-        pool.query(`UPDATE users SET mail = '${user.mail}', firstname = '${user.firstname}', lastname = '${user.lastname}', birthdate = '${user.birthdate}' WHERE user_id = ${user_id};`, (err, results) => {
+        pool.query(`UPDATE users SET mail = '${user.mail}', firstname = '${user.firstname? user.firstname: ""}', lastname = '${user.lastname? user.lastname : ""}', birthdate = '${user.birthdate? user.birthdate : ""}' WHERE user_id = ${user_id};`, (err, results) => {
             if (err) {
                 return reject(err)
             }
