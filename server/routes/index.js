@@ -150,9 +150,9 @@ router.put("/updateUser", async (req, res) => {
             if (isValid) {
 
                 const user = req.body
-
+                
                 //Check if informations are in a valid format
-                if ('user_id' in user && 'mail' in user && 'firstname' in user && 'lastname' in user && 'birthdate' in user && 'profile_picture' in user) {
+                if ('user_id' in user && 'mail' in user && 'firstname' in user && 'lastname' in user && 'birthdate' in user) {
                     //get user's id
                     const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                     const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
@@ -262,13 +262,27 @@ router.delete("/removeExercice", async (req, res) => {
         .then(async (isValid) => {
             if (isValid) {
                 const exo = req.body
-                
+
                 //get user's id
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
+                let linkedTrainingsessions = await db.getTrainingExercicesByExercise(exo.exercice_id)
+
+
+                //remove every training that have less than 2 exercises
+                linkedTrainingsessions.forEach(async (session) => {
+                    let training = await db.getTrainingExercices(session.training_sessions_training_session_id)
+
+                    if (training.length <= 2) {
+                        //delete user's training session
+                        await db.deleteTraining(training[0].training_sessions_training_session_id, decoded.user_id)
+                    }
+                })
+
                 //get user's exercices
                 await db.deleteExercice(exo.exercice_id, decoded.user_id)
+
                 res.sendStatus(200)
             } else {
                 res.status(401).send("Unauthorized");
@@ -310,7 +324,6 @@ router.put("/editExercice", async (req, res) => {
             console.log(err);
             res.status(500).send("Internal Server Error");
         })
-
 })
 
 
@@ -369,5 +382,222 @@ router.delete("/deleteUser", async (req, res) => {
         })
 })
 
+
+router.post("/createTraining", async (req, res) => {
+    //Create a new training session
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                const training = req.body
+
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //generate the the new training (empty)
+                try {
+                    await db.createTraining(training.name, decoded.user_id)
+                } catch (e) {
+                    if (e.code == "ER_DUP_ENTRY") {
+                        //The user already have a training with this name
+                        return res.sendStatus(409)
+                    } else {
+                        return res.sendStatus(500)
+                    }
+                }
+
+                //get new training ID
+                let newTraining = (await db.getTrainingByName(training.name, decoded.user_id))[0]
+
+                //link exercises to the new training session
+                training.exercisesId.forEach(async (exo) => {
+                    await db.fillTraining(newTraining.training_session_id, exo.exerciseId)
+                })
+
+                res.sendStatus(200)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.delete("/removeTraining", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+                const training = req.body
+
+                //get user data
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decodedUser = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //delete user's training session
+                await db.deleteTraining(training.training_session_id, decodedUser.user_id)
+                res.sendStatus(200)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.get("/getTrainingExercices", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                const training = req.query
+
+                //get training's exercices
+                let exercices = await db.getTrainingExercices(training.training_session_id)
+                res.json(exercices)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.put("/editTrainingSession", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                const training = req.body
+
+                //get user's id
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                try {
+                    //edit training name
+                    await db.editTrainingName(training.training_session_id, decoded.user_id, training.name)
+
+                    //remove all exercises from the training session
+                    await db.clearTraining(training.training_session_id)
+
+                    //link exercises to the current training session
+                    training.exercises.forEach(async (exo) => {
+                        await db.fillTraining(training.training_session_id, exo.exercice_id)
+                    })
+
+                } catch (e) {
+                    if (e.code == "ER_DUP_ENTRY") {
+                        //The user already have a training with this name
+                        return res.sendStatus(409)
+                    } else {
+                        return res.sendStatus(500)
+                    }
+                }
+
+                res.sendStatus(200)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+
+router.post("/createNewSchedule", async (req, res) => {
+    //Create a new training session
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                const schedule = req.body
+                //get user info
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //delete if a training is already planned at this date
+                try {
+                    await db.deleteScheduledTraining(decoded.user_id, schedule.date)
+                } catch {
+                    res.sendStatus(500)
+                }
+
+                //schedule new training
+                try {
+                    await db.scheduleTraining(schedule.date, schedule.training_session_id, decoded.user_id)
+                } catch (e) {
+                    return res.sendStatus(500)
+                }
+
+                res.sendStatus(200)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.get("/getUserSchedules", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+
+                //get user info
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //get user's scheduled training sessions
+                let schedules = await db.getUserSchedules(decoded.user_id)
+                res.json(schedules)
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
+
+router.delete("/removeScheduledTraining", async (req, res) => {
+    //check if session still valid
+    auth.checkSession(req)
+        .then(async (isValid) => {
+            if (isValid) {
+                const schedule = req.body
+
+                //get user data
+                const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
+                const decodedUser = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
+
+                //delete user's training session
+                try {
+                    await db.deleteScheduledTraining(decodedUser.user_id, schedule.date)
+                    res.sendStatus(200)
+                } catch {
+                    res.sendStatus(500)
+                }
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send("Internal Server Error");
+        })
+})
 
 export default router
