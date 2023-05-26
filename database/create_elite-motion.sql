@@ -53,18 +53,18 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `elite-motion`.`exercices`
+-- Table `elite-motion`.`exercises`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `elite-motion`.`exercices` (
-  `exercice_id` INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `elite-motion`.`exercises` (
+  `exercise_id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NULL,
   `description` VARCHAR(500) NULL,
   `reps` INT NULL,
   `sets` INT NULL,
   `users_user_id` INT NOT NULL,
-  PRIMARY KEY (`exercice_id`, `users_user_id`),
-  INDEX `fk_exercices_users1_idx` (`users_user_id` ASC) VISIBLE,
-  CONSTRAINT `fk_exercices_users1`
+  PRIMARY KEY (`exercise_id`, `users_user_id`),
+  INDEX `fk_exercises_users1_idx` (`users_user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_exercises_users1`
     FOREIGN KEY (`users_user_id`)
     REFERENCES `elite-motion`.`users` (`user_id`)
     ON DELETE CASCADE
@@ -73,22 +73,22 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `elite-motion`.`training_sessions_group_exercices`
+-- Table `elite-motion`.`training_sessions_group_exercises`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `elite-motion`.`training_sessions_group_exercices` (
+CREATE TABLE IF NOT EXISTS `elite-motion`.`training_sessions_group_exercises` (
   `training_sessions_training_session_id` INT NOT NULL,
-  `exercices_exercice_id` INT NOT NULL,
-  PRIMARY KEY (`training_sessions_training_session_id`, `exercices_exercice_id`),
-  INDEX `fk_training_sessions_has_exercices_exercices1_idx` (`exercices_exercice_id` ASC) VISIBLE,
-  INDEX `fk_training_sessions_has_exercices_training_sessions1_idx` (`training_sessions_training_session_id` ASC) VISIBLE,
-  CONSTRAINT `fk_training_sessions_has_exercices_training_sessions1`
+  `exercises_exercise_id` INT NOT NULL,
+  PRIMARY KEY (`training_sessions_training_session_id`, `exercises_exercise_id`),
+  INDEX `fk_training_sessions_has_exercises_exercises1_idx` (`exercises_exercise_id` ASC) VISIBLE,
+  INDEX `fk_training_sessions_has_exercises_training_sessions1_idx` (`training_sessions_training_session_id` ASC) VISIBLE,
+  CONSTRAINT `fk_training_sessions_has_exercises_training_sessions1`
     FOREIGN KEY (`training_sessions_training_session_id`)
     REFERENCES `elite-motion`.`training_sessions` (`training_session_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_training_sessions_has_exercices_exercices1`
-    FOREIGN KEY (`exercices_exercice_id`)
-    REFERENCES `elite-motion`.`exercices` (`exercice_id`)
+  CONSTRAINT `fk_training_sessions_has_exercises_exercises1`
+    FOREIGN KEY (`exercises_exercise_id`)
+    REFERENCES `elite-motion`.`exercises` (`exercise_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

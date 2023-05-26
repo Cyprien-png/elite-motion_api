@@ -143,12 +143,12 @@ em_db.createUserSession = (token, endDate, userId) => {
 }
 
             
-//Create new exercice for the user
-em_db.createExo = (exercice, userId) => {
+//Create new exercise for the user
+em_db.createExo = (exercise, userId) => {
     return new Promise((resolve, reject) => {
         pool.query(
-            `INSERT INTO exercices (name, description, reps, sets, users_user_id) 
-            VALUES ("${exercice.name}", "${exercice.description}", "${exercice.reps}", "${exercice.sets}", "${userId}") `, (err, results) => {
+            `INSERT INTO exercises (name, description, reps, sets, users_user_id) 
+            VALUES ("${exercise.name}", "${exercise.description}", "${exercise.reps}", "${exercise.sets}", "${userId}") `, (err, results) => {
                 if (err) {
                     return reject(err)
                 }
@@ -157,10 +157,10 @@ em_db.createExo = (exercice, userId) => {
     })
 }
 
-em_db.getUsersExercices = (user_id) => {
+em_db.getUsersExercises = (user_id) => {
     return new Promise((resolve, reject) => {
         pool.query(
-            `SELECT * FROM exercices WHERE users_user_id =${user_id} ORDER BY exercice_id DESC;`, (err, results) => {
+            `SELECT * FROM exercises WHERE users_user_id =${user_id} ORDER BY exercise_id DESC;`, (err, results) => {
                 if (err) {
                     return reject(err)
                 }
@@ -173,7 +173,7 @@ em_db.getUsersExercices = (user_id) => {
 em_db.getExerciseById = (exercise_id) => {
     return new Promise((resolve, reject) => {
         pool.query(
-            `SELECT * FROM exercices WHERE exercice_id =${exercise_id};`, (err, results) => {
+            `SELECT * FROM exercises WHERE exercise_id =${exercise_id};`, (err, results) => {
                 if (err) {
                     return reject(err)
                 }
@@ -182,10 +182,10 @@ em_db.getExerciseById = (exercise_id) => {
     })
 }
 
-em_db.deleteExercice = (exercice_id, user_id) => {
+em_db.deleteExercise = (exercise_id, user_id) => {
     return new Promise((resolve, reject) => {
         pool.query(
-            `DELETE FROM exercices WHERE exercice_id =${exercice_id} AND users_user_id = ${user_id}` , (err, results) => {
+            `DELETE FROM exercises WHERE exercise_id =${exercise_id} AND users_user_id = ${user_id}` , (err, results) => {
                 if (err) {
                     return reject(err)
                 }
@@ -194,10 +194,10 @@ em_db.deleteExercice = (exercice_id, user_id) => {
     })
 }
 
-//update exercice data
-em_db.editExercice = (exo, user_id) => {
+//update exercise data
+em_db.editExercise = (exo, user_id) => {
     return new Promise((resolve, reject) => {
-        pool.query(`UPDATE exercices SET name = "${exo.name}", description = "${exo.description}", reps = "${exo.reps}", sets = "${exo.sets}" WHERE exercice_id = ${exo.exercice_id} AND users_user_id = ${user_id};`, (err, results) => {
+        pool.query(`UPDATE exercises SET name = "${exo.name}", description = "${exo.description}", reps = "${exo.reps}", sets = "${exo.sets}" WHERE exercise_id = ${exo.exercise_id} AND users_user_id = ${user_id};`, (err, results) => {
             if (err) {
                 return reject(err)
             }
@@ -257,10 +257,10 @@ em_db.getTrainingSessionsByID = (training_session_id) => {
       })
 }
 
-//add exercices to a training session
+//add exercises to a training session
 em_db.fillTraining = (training_id, exercise_id) => {
     return new Promise((resolve, reject) => {
-        pool.query(`INSERT INTO training_sessions_group_exercices (training_sessions_training_session_id, exercices_exercice_id) VALUES ('${training_id}', '${exercise_id}');`, (err, results) => {
+        pool.query(`INSERT INTO training_sessions_group_exercises (training_sessions_training_session_id, exercises_exercise_id) VALUES ('${training_id}', '${exercise_id}');`, (err, results) => {
             if (err) {
                 return reject(err)
             }
@@ -282,10 +282,10 @@ em_db.deleteTraining = (training_session_id, user_id) => {
 }
 
 
-em_db.getTrainingExercices = (training_session_id) => {
+em_db.getTrainingExercises = (training_session_id) => {
     return new Promise((resolve, reject) => {
         pool.query(
-            `SELECT * FROM training_sessions_group_exercices WHERE training_sessions_training_session_id = ${training_session_id};` , (err, results) => {
+            `SELECT * FROM training_sessions_group_exercises WHERE training_sessions_training_session_id = ${training_session_id};` , (err, results) => {
                 if (err) {
                     return reject(err)
                 }
@@ -309,7 +309,7 @@ em_db.editTrainingName = (training_session_id, users_user_id, newName) => {
 //clear training from exercises
 em_db.clearTraining = (training_session_id) => {
     return new Promise((resolve, reject) => {
-        pool.query(`DELETE FROM training_sessions_group_exercices WHERE training_sessions_training_session_id = ${training_session_id}`, (err, results) => {
+        pool.query(`DELETE FROM training_sessions_group_exercises WHERE training_sessions_training_session_id = ${training_session_id}`, (err, results) => {
             if (err) {
                 return reject(err)
             }
@@ -318,11 +318,11 @@ em_db.clearTraining = (training_session_id) => {
     })
 }
 
-//get training session by exercice
-em_db.getTrainingExercicesByExercise = (exercise_id) => {
+//get training session by exercise
+em_db.getTrainingExercisesByExercise = (exercise_id) => {
     return new Promise((resolve, reject) => {
         pool.query(
-            `SELECT * FROM training_sessions_group_exercices WHERE exercices_exercice_id = ${exercise_id};` , (err, results) => {
+            `SELECT * FROM training_sessions_group_exercises WHERE exercises_exercise_id = ${exercise_id};` , (err, results) => {
                 if (err) {
                     return reject(err)
                 }

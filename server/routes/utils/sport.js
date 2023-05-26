@@ -34,17 +34,17 @@ sport.getTraining = async(user_id) => {
 }
 
 
-sport.getExercices = async(user_id) => {
-    let exercices
+sport.getExercises = async(user_id) => {
+    let exercises
     
     try {
-        exercices = await db.getUsersExercices(user_id)
+        exercises = await db.getUsersExercises(user_id)
     } catch (e) {
         console.log(e)
         res.sendStatus(500)
     }
 
-    return exercices
+    return exercises
 }
 
 
