@@ -84,13 +84,13 @@ CREATE TABLE IF NOT EXISTS `elite-motion`.`training_sessions_group_exercises` (
   CONSTRAINT `fk_training_sessions_has_exercises_training_sessions1`
     FOREIGN KEY (`training_sessions_training_session_id`)
     REFERENCES `elite-motion`.`training_sessions` (`training_session_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_training_sessions_has_exercises_exercises1`
     FOREIGN KEY (`exercises_exercise_id`)
     REFERENCES `elite-motion`.`exercises` (`exercise_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
