@@ -25,7 +25,7 @@ export const sendMail = async () => {
         let mail
 
 
-        let trainings = await db.getTrainingExercices(schedule.training_sessions_training_session_id)
+        let trainings = await db.getTrainingExercises(schedule.training_sessions_training_session_id)
 
         let trainingSession = await db.getTrainingSessionsByID(trainings[0].training_sessions_training_session_id)
         session = trainingSession[0].name
@@ -34,7 +34,7 @@ export const sendMail = async () => {
         mail = user.mail
 
         await Promise.all(trainings.map(async (training) => {
-            let exercise = (await db.getExerciseById(training.exercices_exercice_id))[0]
+            let exercise = (await db.getExerciseById(training.exercises_exercise_id))[0]
 
             if (exo === "") {
                 exo = exercise.name

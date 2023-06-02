@@ -232,7 +232,7 @@ router.get("/getTrainingSessions", async (req, res) => {
 })
 
 
-router.get("/getExercices", async (req, res) => {
+router.get("/getExercises", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
         .then(async (isValid) => {
@@ -242,9 +242,9 @@ router.get("/getExercices", async (req, res) => {
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
-                //get user's exercices
-                let exercices = await sport.getExercices(decoded.user_id)
-                res.json(exercices)
+                //get user's exercises
+                let exercises = await sport.getExercises(decoded.user_id)
+                res.json(exercises)
             } else {
                 res.status(401).send("Unauthorized");
             }
@@ -256,7 +256,7 @@ router.get("/getExercices", async (req, res) => {
 })
 
 
-router.delete("/removeExercice", async (req, res) => {
+router.delete("/removeExercise", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
         .then(async (isValid) => {
@@ -267,12 +267,12 @@ router.delete("/removeExercice", async (req, res) => {
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
-                let linkedTrainingsessions = await db.getTrainingExercicesByExercise(exo.exercice_id)
+                let linkedTrainingsessions = await db.getTrainingExercisesByExercise(exo.exercise_id)
 
 
                 //remove every training that have less than 2 exercises
                 linkedTrainingsessions.forEach(async (session) => {
-                    let training = await db.getTrainingExercices(session.training_sessions_training_session_id)
+                    let training = await db.getTrainingExercises(session.training_sessions_training_session_id)
 
                     if (training.length <= 2) {
                         //delete user's training session
@@ -280,8 +280,8 @@ router.delete("/removeExercice", async (req, res) => {
                     }
                 })
 
-                //get user's exercices
-                await db.deleteExercice(exo.exercice_id, decoded.user_id)
+                //get user's exercises
+                await db.deleteExercise(exo.exercise_id, decoded.user_id)
 
                 res.sendStatus(200)
             } else {
@@ -295,7 +295,7 @@ router.delete("/removeExercice", async (req, res) => {
 })
 
 
-router.put("/editExercice", async (req, res) => {
+router.put("/editExercise", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
         .then(async (isValid) => {
@@ -309,7 +309,7 @@ router.put("/editExercice", async (req, res) => {
 
                 //update user's data
                 try {
-                    await db.editExercice(exo, decoded.user_id)
+                    await db.editExercise(exo, decoded.user_id)
                     res.sendStatus(200)
 
                 } catch (e) {
@@ -327,22 +327,22 @@ router.put("/editExercice", async (req, res) => {
 })
 
 
-router.post("/createExercice", async (req, res) => {
+router.post("/createExercise", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
         .then(async (isValid) => {
             if (isValid) {
 
-                const exercice = req.body
+                const exercise = req.body
 
                 //get user's id
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
-                //get user's exercices
+                //get user's exercises
 
                 try {
-                    await db.createExo(exercice, decoded.user_id)
+                    await db.createExo(exercise, decoded.user_id)
                 } catch (e) {
                     console.log(e)
                     return res.sendStatus(500)
@@ -370,7 +370,7 @@ router.delete("/deleteUser", async (req, res) => {
                 const token = req.headers["authorization"] && req.headers["authorization"].split(" ")[1];
                 const decoded = jwt.verify(token, process.env.USER_SESSION_TOKEN_SECRET)
 
-                //get user's exercices
+                //get user's exercises
                 await db.deleteUser(decoded.user_id)
                 res.sendStatus(200)
             } else {
@@ -448,7 +448,7 @@ router.delete("/removeTraining", async (req, res) => {
         })
 })
 
-router.get("/getTrainingExercices", async (req, res) => {
+router.get("/getTrainingExercises", async (req, res) => {
     //check if session still valid
     auth.checkSession(req)
         .then(async (isValid) => {
@@ -456,9 +456,9 @@ router.get("/getTrainingExercices", async (req, res) => {
 
                 const training = req.query
 
-                //get training's exercices
-                let exercices = await db.getTrainingExercices(training.training_session_id)
-                res.json(exercices)
+                //get training's exercises
+                let exercises = await db.getTrainingExercises(training.training_session_id)
+                res.json(exercises)
             } else {
                 res.status(401).send("Unauthorized");
             }
@@ -490,7 +490,7 @@ router.put("/editTrainingSession", async (req, res) => {
 
                     //link exercises to the current training session
                     training.exercises.forEach(async (exo) => {
-                        await db.fillTraining(training.training_session_id, exo.exercice_id)
+                        await db.fillTraining(training.training_session_id, exo.exercise_id)
                     })
 
                 } catch (e) {
