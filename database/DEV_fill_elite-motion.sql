@@ -1,4 +1,4 @@
-INSERT INTO users (mail, password) VALUES ("admin@test.ch","8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918");
+	INSERT INTO users (mail, password) VALUES ("admin@test.ch","8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918");
 insert into exercises (name, description, reps, sets, users_user_id) values ('Omba', 'Dilation of intestine', 1, 1, 1);
 insert into exercises (name, description, reps, sets, users_user_id) values ('Eimbee', 'Ext audit canal reconstr', 2, 2, 1);
 insert into exercises (name, description, reps, sets, users_user_id) values ('Browsebug', 'Chng hnd mus/ten lng NEC', 3, 3, 1);
